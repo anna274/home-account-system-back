@@ -1,7 +1,9 @@
 package by.bsuir.rusakovich.controller;
 
+import by.bsuir.rusakovich.entity.BankAccount;
 import by.bsuir.rusakovich.entity.Expense;
 import by.bsuir.rusakovich.entity.Income;
+import by.bsuir.rusakovich.repository.BankAccountRepository;
 import by.bsuir.rusakovich.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,19 +17,31 @@ import java.util.List;
 public class ExpenseController {
 
     private final ExpenseRepository expenseRepository;
+    private final BankAccountRepository bankAccountRepository;
 
     @PostMapping
     public Expense addExpense(@RequestBody Expense expense) {
+        BankAccount bankAccount = expense.getBankAccount();
+        bankAccount.setBalance(bankAccount.getBalance() - expense.getSum());
+        bankAccountRepository.save(bankAccount);
         return expenseRepository.save(expense);
     }
 
     @PutMapping
     public Expense updateExpense(@RequestBody Expense expense) {
+        BankAccount bankAccount = expense.getBankAccount();
+        Expense oldExpense = expenseRepository.getOne(expense.getId());
+        bankAccount.setBalance(bankAccount.getBalance() + oldExpense.getSum() - expense.getSum());
+        bankAccountRepository.save(bankAccount);
         return expenseRepository.save(expense);
     }
 
     @DeleteMapping(value = "/{id}")
     public void deleteExpense(@PathVariable long id) {
+        Expense expense = expenseRepository.getOne(id);
+        BankAccount bankAccount = expense.getBankAccount();
+        bankAccount.setBalance(bankAccount.getBalance() + expense.getSum());
+        bankAccountRepository.save(bankAccount);
         expenseRepository.deleteById(id);
     }
 

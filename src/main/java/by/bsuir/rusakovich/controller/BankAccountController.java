@@ -1,5 +1,6 @@
 package by.bsuir.rusakovich.controller;
 
+import by.bsuir.rusakovich.entity.Account;
 import by.bsuir.rusakovich.entity.BankAccount;
 import by.bsuir.rusakovich.repository.BankAccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,10 @@ public class BankAccountController {
 
     @PutMapping
     public BankAccount updateBankAccount(@RequestBody BankAccount bankAccount) {
-        return bankAccountRepository.save(bankAccount);
+        BankAccount bankAccountToUpdate = bankAccountRepository.getOne(bankAccount.getId());
+        bankAccountToUpdate.setAccountMember(bankAccount.getAccountMember());
+        bankAccountToUpdate.setName(bankAccount.getName());
+        return bankAccountRepository.save(bankAccountToUpdate);
     }
 
     @DeleteMapping(value = "/{id}")

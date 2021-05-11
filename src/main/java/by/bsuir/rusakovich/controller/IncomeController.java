@@ -1,6 +1,8 @@
 package by.bsuir.rusakovich.controller;
 
+import by.bsuir.rusakovich.entity.BankAccount;
 import by.bsuir.rusakovich.entity.Income;
+import by.bsuir.rusakovich.repository.BankAccountRepository;
 import by.bsuir.rusakovich.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,19 +16,31 @@ import java.util.List;
 public class IncomeController {
 
     private final IncomeRepository incomeRepository;
+    private final BankAccountRepository bankAccountRepository;
 
     @PostMapping
     public Income addIncome(@RequestBody Income income) {
+        BankAccount bankAccount = income.getBankAccount();
+        bankAccount.setBalance(bankAccount.getBalance() + income.getSum());
+        bankAccountRepository.save(bankAccount);
         return incomeRepository.save(income);
     }
 
     @PutMapping
     public Income updateIncome(@RequestBody Income income) {
+        BankAccount bankAccount = income.getBankAccount();
+        Income oldIncome = incomeRepository.getOne(income.getId());
+        bankAccount.setBalance(bankAccount.getBalance() - oldIncome.getSum() + income.getSum());
+        bankAccountRepository.save(bankAccount);
         return incomeRepository.save(income);
     }
 
     @DeleteMapping(value = "/{id}")
     public void deleteIncome(@PathVariable long id) {
+        Income income = incomeRepository.getOne(id);
+        BankAccount bankAccount = income.getBankAccount();
+        bankAccount.setBalance(bankAccount.getBalance() - income.getSum());
+        bankAccountRepository.save(bankAccount);
         incomeRepository.deleteById(id);
     }
 

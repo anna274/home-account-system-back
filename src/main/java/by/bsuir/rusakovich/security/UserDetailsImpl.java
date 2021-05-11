@@ -2,6 +2,7 @@ package by.bsuir.rusakovich.security;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -13,8 +14,13 @@ public class UserDetailsImpl implements UserDetails {
     @Getter
     private final Long id;
     private final String login;
-    private final String password;
+    @Setter
+    private String password;
     private final Set<GrantedAuthority> grantedAuthorities;
+
+    @Getter
+    @Setter
+    private String sessionId;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
